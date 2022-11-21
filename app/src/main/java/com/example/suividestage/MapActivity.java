@@ -36,10 +36,8 @@ public class MapActivity extends AppCompatActivity {
         tabPerm[0] = Manifest.permission.WRITE_EXTERNAL_STORAGE;
         requestPermissionsIfNecessary(tabPerm);
         GeoPoint p = positionnerEtudiants();
-        positionnerSurCentre(p) ;
-        ( (Button) findViewById(R.id.buttonRetourMap) ).setOnClickListener(view -> {
-            finish();
-        });
+        positionnerSurCentre(p);
+        ((Button) findViewById(R.id.buttonRetourMap)).setOnClickListener(view -> finish());
     }
 
     private void positionnerSurCentre(GeoPoint p) {
@@ -47,19 +45,20 @@ public class MapActivity extends AppCompatActivity {
         mapController.setZoom(9.5);
         mapController.setCenter(p);
     }
+
     private GeoPoint positionnerEtudiants() {
         map.getOverlays().clear();
-        double moyLat=0 ;
-        double moyLng=0 ;
-        for(Etudiant e : Model.getInstance().getEtudiants()){
-            Marker m = new Marker(map) ;
-            moyLat+=e.getLatEnt() ;
-            moyLng+=e.getLngEnt() ;
+        double moyLat = 0;
+        double moyLng = 0;
+        for (Etudiant e : Model.getInstance().getEtudiants()) {
+            Marker m = new Marker(map);
+            moyLat += e.getLatEnt();
+            moyLng += e.getLngEnt();
             m.setPosition(new GeoPoint(e.getLatEnt(), e.getLngEnt()));
             m.setTitle(e.toString());
-            map.getOverlays().add(m) ;
+            map.getOverlays().add(m);
         }
-        return new GeoPoint(moyLat/Model.getInstance().getEtudiants().size(),moyLng/Model.getInstance().getEtudiants().size()) ;
+        return new GeoPoint(moyLat / Model.getInstance().getEtudiants().size(), moyLng / Model.getInstance().getEtudiants().size());
     }
 
     @Override

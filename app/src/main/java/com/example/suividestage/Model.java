@@ -13,10 +13,10 @@ import java.util.List;
 
 public class Model {
     private static Model instance = null;
-    private List<Etudiant> etudiants;
-    private ArrayAdapter<Etudiant> arrayAdapterEtu;
-    private Context context;
-    private ObjectMapper om = new ObjectMapper();
+    private final List<Etudiant> etudiants;
+    private final ArrayAdapter<Etudiant> arrayAdapterEtu;
+    private final Context context;
+    private final ObjectMapper om = new ObjectMapper();
 
     private Model(Context context) {
         this.context = context;
@@ -64,7 +64,7 @@ public class Model {
         }
 
     }
-    
+
     public void delEtudiant(Etudiant e) {
         String url = "uc=delEtudiant&idEtu=" + e.getIdEtu();
         WSConnexionHTTPS wsConnexionHTTPS = new WSConnexionHTTPS() {

@@ -4,8 +4,6 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,16 +17,14 @@ import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 public class WSConnexionHTTPS extends AsyncTask<String,Integer,String> {
-    private String base_url = "https://sio.jbdelasalle.com/~amedassi/suivistages/index.php?";
+    private final String base_url = "https://sio.jbdelasalle.com/~amedassi/suivistages/index.php?";
     public static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
     private static OkHttpClient client = null;
 
     public WSConnexionHTTPS() {
-
         if( client==null) {
             try {
                 TrustManager[] trustAllCerts = new TrustManager[]{
@@ -91,21 +87,4 @@ public class WSConnexionHTTPS extends AsyncTask<String,Integer,String> {
         }
         return null ;
     }
-
-
-
-
-/*
-    public String post(String url, String json) throws IOException {
-        RequestBody body = RequestBody.create(JSON, json);
-        Request request = new Request.Builder()
-                .url(base_url + url)
-                .post(body)
-                .build();
-        try ( Response response = client.newCall(request).execute()) {
-            return response.body().string();
-        }
-    }
-    */
-
 }

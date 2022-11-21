@@ -1,8 +1,6 @@
 package com.example.suividestage;
 
-import java.io.Serializable;
-
-public class Etudiant implements Serializable {
+public class Etudiant {
     private int idEtu;
     private String nomEtu;
     private String prenomEtu;
@@ -65,9 +63,6 @@ public class Etudiant implements Serializable {
         return idEtu;
     }
 
-    public void setIdEtu(int idEtu) {
-        this.idEtu = idEtu;
-    }
 
     @Override
     public String toString() {
