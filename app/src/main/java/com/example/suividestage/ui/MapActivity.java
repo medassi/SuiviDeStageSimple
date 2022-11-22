@@ -53,7 +53,7 @@ public class MapActivity extends AppCompatActivity {
         map.getOverlays().clear();
         double moyLat = 0;
         double moyLng = 0;
-        for (Etudiant e : DaoEtudiant.getInstance().getEtudiants()) {
+        for (Etudiant e : DaoEtudiant.getInstance().getLocalEtudiants()) {
             Marker m = new Marker(map);
             moyLat += e.getLatEnt();
             moyLng += e.getLngEnt();
@@ -61,7 +61,7 @@ public class MapActivity extends AppCompatActivity {
             m.setTitle(e.toString());
             map.getOverlays().add(m);
         }
-        return new GeoPoint(moyLat / DaoEtudiant.getInstance().getEtudiants().size(), moyLng / DaoEtudiant.getInstance().getEtudiants().size());
+        return new GeoPoint(moyLat / DaoEtudiant.getInstance().getLocalEtudiants().size(), moyLng / DaoEtudiant.getInstance().getLocalEtudiants().size());
     }
 
     @Override

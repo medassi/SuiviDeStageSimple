@@ -25,6 +25,7 @@ public class WSConnexionHTTPS extends AsyncTask<String,Integer,String> {
     private static OkHttpClient client = null;
 
     public WSConnexionHTTPS() {
+
         if( client==null) {
             try {
                 TrustManager[] trustAllCerts = new TrustManager[]{

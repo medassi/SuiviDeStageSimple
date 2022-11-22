@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.example.suividestage.daos.DelegateAsyncTask;
 import com.example.suividestage.R;
 import com.example.suividestage.beans.Etudiant;
 import com.example.suividestage.daos.DaoEtudiant;
@@ -41,7 +42,7 @@ public class EtudiantActivity extends AppCompatActivity {
         requestPermissionsIfNecessary(tabPerm);
         int index = getIntent().getIntExtra("index", -1);
         if (index != -1) { //Alors on veut modifier un etudiant
-            Etudiant e = DaoEtudiant.getInstance().getArrayAdapterEtu().getItem(index);
+            Etudiant e = DaoEtudiant.getInstance().getLocalEtudiants().get(index);
             ((EditText) (findViewById(R.id.etNom))).setText(e.getNomEtu());
             ((EditText) (findViewById(R.id.etPrenom))).setText(e.getPrenomEtu());
             ((EditText) (findViewById(R.id.etNomEntreprise))).setText(e.getNomEnt());
@@ -60,14 +61,20 @@ public class EtudiantActivity extends AppCompatActivity {
         }
         findViewById(R.id.buttonValider).setOnClickListener(v -> {
             if (index != -1) {
-                Etudiant e = DaoEtudiant.getInstance().getArrayAdapterEtu().getItem(index);
+                Etudiant e = DaoEtudiant.getInstance().getLocalEtudiants().get(index);
                 e.setNomEtu(((EditText) (findViewById(R.id.etNom))).getText().toString());
                 e.setPrenomEtu(((EditText) (findViewById(R.id.etPrenom))).getText().toString());
                 e.setNomEnt(((EditText) (findViewById(R.id.etNomEntreprise))).getText().toString());
                 e.setLatEnt(Double.parseDouble(((EditText) (findViewById(R.id.etLat))).getText().toString()));
                 e.setLngEnt(Double.parseDouble(((EditText) (findViewById(R.id.etLng))).getText().toString()));
                 setResult(1);
-                DaoEtudiant.getInstance().updateEtudiant(e);
+                DaoEtudiant.getInstance().updateEtudiant(e, new DelegateAsyncTask() {
+                    @Override
+                    public void whenWSConnexionIsTerminated(String result) {
+                        setResult(1);
+                        finish();
+                    }
+                });
             } else {
                 Etudiant newEtudiant
                         = new Etudiant(0, ((EditText) (findViewById(R.id.etNom))).getText().toString(),
@@ -76,10 +83,15 @@ public class EtudiantActivity extends AppCompatActivity {
                         Double.parseDouble(((EditText) (findViewById(R.id.etLat))).getText().toString()),
                         Double.parseDouble(((EditText) (findViewById(R.id.etLng))).getText().toString())
                 );
-                DaoEtudiant.getInstance().addEtudiant(newEtudiant);
-                setResult(1);
+                DaoEtudiant.getInstance().addEtudiant(newEtudiant, new DelegateAsyncTask() {
+                    @Override
+                    public void whenWSConnexionIsTerminated(String result) {
+                        setResult(1);
+                        finish();
+                    }
+                });
             }
-            finish();
+
         });
         findViewById(R.id.buttonAnnuler).setOnClickListener(v -> {
             setResult(0);
