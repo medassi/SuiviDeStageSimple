@@ -1,9 +1,11 @@
-package com.example.suividestage;
+package com.example.suividestage.daos;
 
 import android.content.Context;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
+import com.example.suividestage.beans.Etudiant;
+import com.example.suividestage.net.WSConnexionHTTPS;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -11,14 +13,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Model {
-    private static Model instance = null;
+public class DaoEtudiant {
+    private static DaoEtudiant instance = null;
     private final List<Etudiant> etudiants;
     private final ArrayAdapter<Etudiant> arrayAdapterEtu;
     private final Context context;
     private final ObjectMapper om = new ObjectMapper();
 
-    private Model(Context context) {
+    private DaoEtudiant(Context context) {
         this.context = context;
         etudiants = new ArrayList<>();
         arrayAdapterEtu = new ArrayAdapter(context, android.R.layout.simple_list_item_1, etudiants);
@@ -35,11 +37,11 @@ public class Model {
 
     public static void init(Context context) {
         if (instance == null) {
-            instance = new Model(context);
+            instance = new DaoEtudiant(context);
         }
     }
 
-    public static Model getInstance() {
+    public static DaoEtudiant getInstance() {
         return instance;
     }
 
@@ -49,14 +51,16 @@ public class Model {
             @Override
             protected void onPostExecute(String s) {
                 traiterRetourGetEtudiants(s);
+
             }
         };
+
         wsConnexionHTTPS.execute(url);
     }
 
     private void traiterRetourGetEtudiants(String s) {
-        etudiants.clear();
         try {
+            etudiants.clear();
             Arrays.asList(om.readValue(s, Etudiant[].class)).forEach(etudiant -> etudiants.add(etudiant));
             arrayAdapterEtu.notifyDataSetChanged();
         } catch (JsonProcessingException e) {

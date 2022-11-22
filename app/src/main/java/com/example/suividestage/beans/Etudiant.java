@@ -1,4 +1,4 @@
-package com.example.suividestage;
+package com.example.suividestage.beans;
 
 public class Etudiant {
     private int idEtu;

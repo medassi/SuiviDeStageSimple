@@ -1,15 +1,18 @@
-package com.example.suividestage;
+package com.example.suividestage.ui;
 
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import com.example.suividestage.R;
+import com.example.suividestage.beans.Etudiant;
+import com.example.suividestage.daos.DaoEtudiant;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
@@ -37,7 +40,7 @@ public class MapActivity extends AppCompatActivity {
         requestPermissionsIfNecessary(tabPerm);
         GeoPoint p = positionnerEtudiants();
         positionnerSurCentre(p);
-        ((Button) findViewById(R.id.buttonRetourMap)).setOnClickListener(view -> finish());
+        findViewById(R.id.buttonRetourMap).setOnClickListener(view -> finish());
     }
 
     private void positionnerSurCentre(GeoPoint p) {
@@ -50,7 +53,7 @@ public class MapActivity extends AppCompatActivity {
         map.getOverlays().clear();
         double moyLat = 0;
         double moyLng = 0;
-        for (Etudiant e : Model.getInstance().getEtudiants()) {
+        for (Etudiant e : DaoEtudiant.getInstance().getEtudiants()) {
             Marker m = new Marker(map);
             moyLat += e.getLatEnt();
             moyLng += e.getLngEnt();
@@ -58,7 +61,7 @@ public class MapActivity extends AppCompatActivity {
             m.setTitle(e.toString());
             map.getOverlays().add(m);
         }
-        return new GeoPoint(moyLat / Model.getInstance().getEtudiants().size(), moyLng / Model.getInstance().getEtudiants().size());
+        return new GeoPoint(moyLat / DaoEtudiant.getInstance().getEtudiants().size(), moyLng / DaoEtudiant.getInstance().getEtudiants().size());
     }
 
     @Override

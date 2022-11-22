@@ -1,17 +1,20 @@
-package com.example.suividestage;
+package com.example.suividestage.ui;
 
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
+import com.example.suividestage.R;
+import com.example.suividestage.beans.Etudiant;
+import com.example.suividestage.daos.DaoEtudiant;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;
@@ -38,7 +41,7 @@ public class EtudiantActivity extends AppCompatActivity {
         requestPermissionsIfNecessary(tabPerm);
         int index = getIntent().getIntExtra("index", -1);
         if (index != -1) { //Alors on veut modifier un etudiant
-            Etudiant e = Model.getInstance().getArrayAdapterEtu().getItem(index);
+            Etudiant e = DaoEtudiant.getInstance().getArrayAdapterEtu().getItem(index);
             ((EditText) (findViewById(R.id.etNom))).setText(e.getNomEtu());
             ((EditText) (findViewById(R.id.etPrenom))).setText(e.getPrenomEtu());
             ((EditText) (findViewById(R.id.etNomEntreprise))).setText(e.getNomEnt());
@@ -57,14 +60,14 @@ public class EtudiantActivity extends AppCompatActivity {
         }
         findViewById(R.id.buttonValider).setOnClickListener(v -> {
             if (index != -1) {
-                Etudiant e = Model.getInstance().getArrayAdapterEtu().getItem(index);
+                Etudiant e = DaoEtudiant.getInstance().getArrayAdapterEtu().getItem(index);
                 e.setNomEtu(((EditText) (findViewById(R.id.etNom))).getText().toString());
                 e.setPrenomEtu(((EditText) (findViewById(R.id.etPrenom))).getText().toString());
                 e.setNomEnt(((EditText) (findViewById(R.id.etNomEntreprise))).getText().toString());
                 e.setLatEnt(Double.parseDouble(((EditText) (findViewById(R.id.etLat))).getText().toString()));
                 e.setLngEnt(Double.parseDouble(((EditText) (findViewById(R.id.etLng))).getText().toString()));
                 setResult(1);
-                Model.getInstance().updateEtudiant(e);
+                DaoEtudiant.getInstance().updateEtudiant(e);
             } else {
                 Etudiant newEtudiant
                         = new Etudiant(0, ((EditText) (findViewById(R.id.etNom))).getText().toString(),
@@ -73,7 +76,7 @@ public class EtudiantActivity extends AppCompatActivity {
                         Double.parseDouble(((EditText) (findViewById(R.id.etLat))).getText().toString()),
                         Double.parseDouble(((EditText) (findViewById(R.id.etLng))).getText().toString())
                 );
-                Model.getInstance().addEtudiant(newEtudiant);
+                DaoEtudiant.getInstance().addEtudiant(newEtudiant);
                 setResult(1);
             }
             finish();
