@@ -1,78 +1,91 @@
 package com.example.suividestage.ui;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.suividestage.daos.DelegateAsyncTask;
 import com.example.suividestage.R;
 import com.example.suividestage.beans.Etudiant;
-import com.example.suividestage.daos.DaoEtudiant;
+import com.example.suividestage.net.WSConnexionHTTPS;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    private ArrayAdapter<Etudiant> etudiantArrayAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        etudiantArrayAdapter = new ArrayAdapter<Etudiant>(this, android.R.layout.simple_list_item_1,
-                DaoEtudiant.getInstance().getLocalEtudiants());
-        ActivityResultLauncher<Intent> launcherEtudiantActivity = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                activityResult -> {
-                    if (activityResult.getResultCode() == 1) {
-                        DaoEtudiant.getInstance().getEtudiants(new DelegateAsyncTask() {
-                            @Override
-                            public void whenWSConnexionIsTerminated(String result) {
-                                etudiantArrayAdapter.notifyDataSetChanged();
-                            }
-                        });
-                    } else if (activityResult.getResultCode() == 0) {
-                        Toast.makeText(this, "Les changements ont été annulés", Toast.LENGTH_SHORT).show();
-                    }
-                }
-        );
-        ((ListView) findViewById(R.id.lv))
-                .setOnItemClickListener((adapterView, view, i, l) -> {
-                    Intent intent = new Intent(this, EtudiantActivity.class);
-                    intent.putExtra("index", i);
-                    launcherEtudiantActivity.launch(intent);
-                });
-        ((ListView) findViewById(R.id.lv))
-                .setOnItemLongClickListener((adapterView, view, i, l) -> {
-                    Etudiant e = (Etudiant) adapterView.getAdapter().getItem(i);
-                    DaoEtudiant.getInstance().delEtudiant(e, new DelegateAsyncTask() {
-                        @Override
-                        public void whenWSConnexionIsTerminated(String result) {
-                            if (result.equals("1")) {
-                                Toast.makeText(MainActivity.this, "Etudiant supprimé", Toast.LENGTH_SHORT).show();
-                                etudiantArrayAdapter.notifyDataSetChanged();
-                            }
-                        }
-                    });
-                    return true;
-                });
-        ((ListView) findViewById(R.id.lv)).setAdapter(etudiantArrayAdapter);
-        findViewById(R.id.buttonAjouter).setOnClickListener(v -> {
-            Intent intent = new Intent(this, EtudiantActivity.class);
-            launcherEtudiantActivity.launch(intent);
+        createAndLaunchASWSGetEtudiants();
+        ((ListView) findViewById(R.id.lv)).setOnItemLongClickListener((adapterView, view, i, l) -> {
+            Etudiant eSel = (Etudiant) adapterView.getItemAtPosition(i);
+            onItemLongClickLV(eSel);
+            return true;
         });
-        findViewById(R.id.buttonCarte).setOnClickListener(v -> {
-            Intent intent = new Intent(this, MapActivity.class);
-            startActivity(intent);
-        });
-        DaoEtudiant.getInstance().getEtudiants(new DelegateAsyncTask() {
+    }
+
+    private void createAndLaunchASWSGetEtudiants() {
+        WSConnexionHTTPS ws = new WSConnexionHTTPS() {
             @Override
-            public void whenWSConnexionIsTerminated(String result) {
-                etudiantArrayAdapter.notifyDataSetChanged();
+            protected void onPostExecute(String s) {
+                traiterRetourGetEtudiants(s);
             }
-        });
+        };
+        ws.execute("uc=getEtudiants");
+    }
+
+    private void traiterRetourGetEtudiants(String s) {
+        Log.d("TRAITERRETETU", s);
+        List<Etudiant> etudiantList = new ArrayList<>();
+        try {
+            JSONArray jsona = new JSONArray(s);
+            for (int i = 0; i < jsona.length(); i++) {
+                JSONObject jsono = jsona.getJSONObject(i);
+                int id = jsono.getInt("idEtu");
+                String nomEtu = jsono.getString("nomEtu");
+                String prenomEtu = jsono.getString("prenomEtu");
+                String nomEnt = jsono.getString("nomEnt");
+                Double lat = jsono.getDouble("latEnt");
+                Double lng = jsono.getDouble("lngEnt");
+                Etudiant e = new Etudiant(id, nomEtu, prenomEtu, nomEnt, lat, lng);
+                etudiantList.add(e);
+            }
+            ((ListView) findViewById(R.id.lv)).setAdapter(new ArrayAdapter<>(this,
+                    android.R.layout.simple_list_item_1, etudiantList));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void onItemLongClickLV(Etudiant eSel) {
+        createAndLaunchASWSDelEtudiant(eSel);
+    }
+
+    private void createAndLaunchASWSDelEtudiant(Etudiant eSel) {
+        WSConnexionHTTPS ws = new WSConnexionHTTPS() {
+            @Override
+            protected void onPostExecute(String s) {
+                traiterRetourDelEtudiant(s);
+            }
+        };
+        ws.execute("uc=delEtudiant&idEtu=" + eSel.getIdEtu());
+    }
+
+    private void traiterRetourDelEtudiant(String s) {
+        if (s.equals("1")) {
+            Toast.makeText(this, "Suppression etudiant OK", Toast.LENGTH_SHORT).show();
+            createAndLaunchASWSGetEtudiants();
+        } else {
+            Toast.makeText(this, "Problem Suppression etudiant ", Toast.LENGTH_SHORT).show();
+        }
     }
 }
